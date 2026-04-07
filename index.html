@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAWASANTOTO - Smart Parlay Calculator</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: #ffffff; color: white; 
+            display: flex; justify-content: center; padding: 20px;
+            flex-direction: column; align-items: center;
+        }
+
+        .website-header {
+            width: 100%; max-width: 500px;
+            text-align: center; margin-bottom: 20px;
+        }
+        
+        .website-header img {
+            max-width: 100%; height: auto;
+			width: 400px;
+        }
+
+        .container { 
+            background: #1e1e1e; padding: 25px; border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); width: 100%; max-width: 500px; 
+            border: 1px solid #333;
+        }
+        
+        h2 { color: #f39c12; text-align: center; margin-bottom: 5px; letter-spacing: 2px; }
+        .subtitle { text-align: center; font-size: 0.9em; color: #888; margin-bottom: 20px; }
+        
+        .row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.3s; }
+        .row input { flex: 2; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: white; }
+        .row select { flex: 1; padding: 10px; border-radius: 5px; background: #f39c12; color: black; font-weight: bold; cursor: pointer; }
+        
+        .main-input { margin-bottom: 20px; }
+        .main-input label { display: block; margin-bottom: 5px; color: #787878; font-size: 0.8em; }
+        .main-input input { width: 100%; padding: 12px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #787878; font-weight: bold; font-size: 0.9em; box-sizing: border-box; }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        
+        button { 
+            flex: 1; padding: 15px; border: none; border-radius: 8px; 
+            font-weight: bold; font-size: 1em; cursor: pointer; transition: 0.3s; 
+        }
+
+        .btn-add { background: #34495e; color: white; margin-bottom: 15px; width: 100%; }
+        .btn-add:hover { background: #2c3e50; }
+        .btn-calc { background: #f39c12; color: black; }
+        .btn-calc:hover { background: #e67e22; }
+		.btn-primary  { 
+            flex: 5; padding: 15px; border: none; border-radius: 8px; 
+            font-weight: bold; font-size: 1em; cursor: pointer; transition: 0.3s; background: #f39c12; color: black;
+        }
+
+        .result { 
+            margin-top: 20px; padding: 20px; background: #252525; border-radius: 8px; border-left: 5px solid #f39c12; 
+        }
+        .highlight { color: #ff0000; font-weight: bold; }
+
+        .footer-info { margin-top: 25px; font-size: 0.8em; border-top: 1px solid #333; padding-top: 15px; color: #aaa; }
+        .footer-info strong { color: #f39c12; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+		
+		.footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(90deg, #000, #222);
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+		
+    </style>
+</head>
+<body>
+
+    <header class="website-header">
+       <img src='https://i.postimg.cc/ZWRP72n2/f435cf22-2896-4522-8d7f-ad89e25fbcd0.jpg' border='0' alt='KAWASANTOTO'><a href='https://inikawasan.mom/' target='https://inikawasan.mom/'></a>
+    </header>
+
+    <div class="container">
+        <h2>KAWASANTOTO</h2>
+        <p class="subtitle">Kalkulator Parlay</p>
+
+        <div class="main-input">
+            <label>Modal Pasang (Stake, Rate 1,000,-)</label>
+            <input type="number" id="stake" placeholder="Masukkan Nominal">
+        </div>
+
+        <div id="parlay-rows">
+            <label style="font-size: 0.8em; color: #787878;">Odds & Status Pertandingan (Max 20)</label>
+            <div class="row">
+                <input type="number" step="0.01" class="odds-val" placeholder="Odds Tim 1">
+                <select class="status-val">
+                    <option value="W">W</option> <option value="LH">LH</option> <option value="WH">WH</option>
+                </select>
+            </div>
+            <div class="row">
+                <input type="number" step="0.01" class="odds-val" placeholder="Odds Tim 2">
+                <select class="status-val">
+                    <option value="W">W</option> <option value="LH">LH</option> <option value="WH">WH</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-add" id="add-match-btn" onclick="addMatchRow()">+ Tambah Tim</button>
+
+        <button class="btn-calc" onclick="calculate()">HITUNG KEMENANGAN</button>
+
+        <div class="result" id="res-box" style="display:none;">
+            <p>Total Odds Akhir: <span id="res-odds" class="highlight">0</span></p>
+            <p>Kemenangan Bersih: <span id="res-win" class="highlight">0</span></p>
+            <p>Total Bayaran: <span id="res-total" class="highlight">0</span></p>
+        </div>
+		
+        <div class="footer-info">
+            <p><strong>Keterangan Rumus:</strong></p>
+            <ul>
+                <li><strong>W (Win):</strong> Odds dikali penuh.</li>
+                <li><strong>LH (Lose Half):</strong> Odds dihitung 0.5 (Total parlay dibagi 2).</li>
+                <li><strong>WH (Win Half):</strong> ((Odds - 1) / 2) + 1.</li>
+                <li><strong>D (Draw):</strong> Odds 0 (Tidak dihitung).</li>
+            </ul>
+        </div>
+		<br><a href="https://inikawasan.mom/" class="btn btn-primary" target="_blank" role="button">
+		BET
+		</a>
+    </div>
+	
+	<footer class="footer">
+    <p>@dayday ©2026 Copyright KAWASANTOTO.</p>
+</footer>
+<script>
+    // Disable klik kanan
+    document.addEventListener("contextmenu", function(e) {
+        e.preventDefault();
+    });
+
+    // Disable shortcut keyboard
+    document.addEventListener("keydown", function(e) {
+        // F12
+        if (e.key === "F12") {
+            e.preventDefault();
+        }
+
+        // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+        if (e.ctrlKey && e.shiftKey && ["I","J","C"].includes(e.key)) {
+            e.preventDefault();
+        }
+
+        // Ctrl+U (view source)
+        if (e.ctrlKey && e.key === "u") {
+            e.preventDefault();
+        }
+    });
+
+    // Deteksi DevTools terbuka
+    setInterval(function() {
+        let widthDiff = window.outerWidth - window.innerWidth;
+        let heightDiff = window.outerHeight - window.innerHeight;
+
+        if (widthDiff > 160 || heightDiff > 160) {
+            // Aksi kalau ketahuan inspect
+            document.body.innerHTML = "<h1>Mau Curi Ya?!</h1>";
+            // atau redirect:
+            // window.location.href = "about:blank";
+        }
+    }, 1000);
+
+    // Optional: blur kalau pindah tab
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden) {
+            document.body.style.filter = "blur(10px)";
+        } else {
+            document.body.style.filter = "none";
+        }
+    });
+</script>
+<script>
+    let matchCount = 2; // Memulai dari 2 baris awal
+
+    function addMatchRow() {
+        if (matchCount < 20) {
+            matchCount++;
+            const container = document.getElementById('parlay-rows');
+            const newRow = document.createElement('div');
+            newRow.className = 'row';
+            newRow.innerHTML = `
+                <input type="number" step="0.01" class="odds-val" placeholder="Odds Tim ${matchCount}">
+                <select class="status-val">
+                    <option value="W">W</option>
+                    <option value="LH">LH</option>
+                    <option value="WH">WH</option>
+                </select>
+            `;
+            container.appendChild(newRow);
+            
+            if (matchCount === 20) {
+                document.getElementById('add-match-btn').innerText = "Maksimal 20 Tim";
+                document.getElementById('add-match-btn').disabled = true;
+                document.getElementById('add-match-btn').style.opacity = "0.5";
+            }
+        }
+    }
+
+    function calculate() {
+        const stake = parseFloat(document.getElementById('stake').value);
+        const oddsElements = document.querySelectorAll('.odds-val');
+        const statusElements = document.querySelectorAll('.status-val');
+        
+        if (isNaN(stake) || stake <= 0) {
+            alert("Masukkan nominal stake!");
+            return;
+        }
+
+        let finalOdds = 1;
+        let validMatch = 0;
+
+        for (let i = 0; i < oddsElements.length; i++) {
+            let o = parseFloat(oddsElements[i].value);
+            let s = statusElements[i].value;
+
+            if (!isNaN(o) && o > 0) {
+                validMatch++;
+                if (s === "W") finalOdds *= o;
+                else if (s === "LH") finalOdds *= 0.5;
+                else if (s === "WH") finalOdds *= ((o - 1) / 2) + 1;
+            }
+        }
+
+        if (validMatch === 0) {
+            alert("Masukkan minimal satu odds!");
+            return;
+        }
+
+        const totalPay = stake * finalOdds;
+        const winNet = totalPay - stake;
+
+        document.getElementById('res-odds').innerText = finalOdds.toFixed(3);
+        document.getElementById('res-win').innerText = "Rp " + Math.floor(winNet).toLocaleString('id-ID');
+        document.getElementById('res-total').innerText = "Rp " + Math.floor(totalPay).toLocaleString('id-ID');
+        document.getElementById('res-box').style.display = 'block';
+    }
+</script>
+
+
+</body>
+</html>
